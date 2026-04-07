@@ -20,11 +20,11 @@ The system is structured as a **Directed Acyclic Graph (DAG)** orchestrating fiv
 ```mermaid
 graph TD
     %% Define Node Colors and Styles
-    classDef start fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef process fill:#bbf,stroke:#333,stroke-width:1px;
-    classDef decision fill:#fff4dd,stroke:#d4a017,stroke-width:2px;
-    classDef endNode fill:#dfd,stroke:#333,stroke-width:2px;
-
+    classDef start fill:#FFD700,stroke:#000,stroke-width:2px;      
+    classDef process fill:#87CEEB,stroke:#000,stroke-width:1px;    
+    classDef decision fill:#FFA500,stroke:#000,stroke-width:2px;   
+    classDef endNode fill:#32CD32,stroke:#000,stroke-width:2px;    
+    
     %% Nodes and Flow
     A[User Input: Niche + Location] --> B[🧠 Brain Node: Strategy Selector]
     B --> C[📡 Scout Node: Raw Data Harvester]
