@@ -37,7 +37,9 @@ graph TD
     
     F --> G[✍️ Writer Node: Triple-Hook Copy]
     G --> H[🖥️ Streamlit UI: Human-in-the-Loop Approval]
-    J --> H  %% Manual review feeds into final approval
+
+    %% Manual review feeds into final approval
+    J --> H
     H --> I((✅ Success: Export PDF/Send))
 
     %% Assign Classes
