@@ -16,15 +16,35 @@ The system is structured as a **Directed Acyclic Graph (DAG)** orchestrating fiv
 * **✍️ Writer Node** – Drafts "Triple-Hook" outreach emails with **Human-in-the-Loop** review.
 
 ### 🧩 Workflow Diagram
+
 ```mermaid
 graph TD
-    A[User Input: Niche + Location] --> B[Brain Node: Strategy Selector]
-    B --> C[Scout Node: Raw Data Harvester]
-    C --> D[Researcher Node: Fact Verification]
-    D --> E[Strategist Node: ROI Mapping]
-    E --> F[Writer Node: Triple-Hook Copy]
-    F --> G[Streamlit UI: Human-in-the-Loop Approval]
-    G --> H((Success: Save/Send))
+    %% Define Node Colors and Styles
+    classDef start fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef process fill:#bbf,stroke:#333,stroke-width:1px;
+    classDef decision fill:#fff4dd,stroke:#d4a017,stroke-width:2px;
+    classDef endNode fill:#dfd,stroke:#333,stroke-width:2px;
+
+    %% Nodes and Flow
+    A[User Input: Niche + Location] --> B[🧠 Brain Node: Strategy Selector]
+    B --> C[📡 Scout Node: Raw Data Harvester]
+    C --> D[🔍 Researcher Node: Fact Verification]
+    
+    %% Conditional Logic for Lead Quality
+    D --> E{Confidence > 65%?}
+    E -- No --> J[🖥️ Streamlit UI: Manual Review / HITL]
+    E -- Yes --> F[📊 Strategist Node: ROI Mapping]
+    
+    F --> G[✍️ Writer Node: Triple-Hook Copy]
+    G --> H[🖥️ Streamlit UI: Human-in-the-Loop Approval]
+    J --> H  %% Manual review feeds into final approval
+    H --> I((✅ Success: Export PDF/Send))
+
+    %% Assign Classes
+    class A start;
+    class B,C,D,F,G,H,J process;
+    class E decision;
+    class I endNode;
 ```
 
 **Key Advantages:**
