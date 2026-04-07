@@ -1,90 +1,111 @@
-# Agentic Market-Intelligence & Outreach System (v1.0)
-### *A Multi-Domain, Stateful Research & Personalization Engine*
 
-An autonomous system designed to identify high-value business "signals" across the **Dallas-Fort Worth** market (Healthcare, Logistics, Real Estate, etc.). This engine uses a domain-agnostic agentic workflow to move beyond static prompt engineering into intelligent lead discovery and "Triple-Hook" copywriting.
+# 🎯 DFW Market-Intelligence Agent
+### *Multi-Agent Prospecting Pipeline for the North Texas Market*
 
-## System Architecture
-The system is built on **LangGraph** using a deterministic state machine to ensure reliability and 100% data persistence via SQLite checkpointing.
+This project automates the journey from raw news to high-value sales outreach. Specifically designed for the **Dallas-Fort Worth metroplex** (Frisco, Plano, Southlake, etc.), it identifies expansion signals, calculates ROI, and drafts targeted outreach strategies using a stateful multi-agent architecture.
 
+---
+
+## 🚀 Architecture Overview
+The system is structured as a **Directed Acyclic Graph (DAG)** orchestrating five specialized agents via **LangGraph**. This ensures a deterministic and reliable workflow compared to standard linear chains.
+
+* **🧠 Brain Node** – Determines search strategy based on niche (e.g., Healthcare) and location.
+* **📡 Scout Node** – Uses **Firecrawl** for live web scraping to gather real-time market data.
+* **🔍 Researcher Node** – Filters raw text to detect verified growth signals (expansions, hiring surges, permits).
+* **📊 Strategist Node** – Maps industry benchmarks to signals to compute potential ROI.
+* **✍️ Writer Node** – Drafts "Triple-Hook" outreach emails with **Human-in-the-Loop** review.
+
+### 🧩 Workflow Diagram
 ```mermaid
 graph TD
-    A[User Input: Niche + Location] --> B{Strategy Selector}
-    B -->|Clinical| C[Healthcare Persona]
-    B -->|Industrial| D[Logistics Persona]
-    B -->|Generic| E[General Business Persona]
-    C & D & E --> F(Dynamic Search Query Gen)
-    F --> G(Firecrawl Researcher)
-    G --> H{Signal Detected?}
-    H -- Yes --> I(Triple-Hook Copywriter)
-    I --> J[Streamlit Approval UI]
-    J --> K((Success: Save/Send))
+    A[User Input: Niche + Location] --> B[Brain Node: Strategy Selector]
+    B --> C[Scout Node: Raw Data Harvester]
+    C --> D[Researcher Node: Fact Verification]
+    D --> E[Strategist Node: ROI Mapping]
+    E --> F[Writer Node: Triple-Hook Copy]
+    F --> G[Streamlit UI: Human-in-the-Loop Approval]
+    G --> H((Success: Save/Send))
 ```
-## Key Features
 
-* **Signal-Based Discovery:** Leverages **Firecrawl** to monitor high-authority local sources (e.g., *Dallas Business Journal*, *Dallas Innovates*) and identify "Why Now" events—such as office expansions, hiring surges, or funding rounds—before they reach national aggregators.
-* **Zero-Shot Signal Detection:** Utilizes **Gemini 1.5 Flash** to semantically analyze web data from **Firecrawl**. The system autonomously identifies "Why Now" events (expansion, hiring, M&A) based on business intent rather than brittle, hardcoded keyword matching.
-* **Triple-Hook Copywriting:** Leverages **Gemini 1.5 Flash** to draft emails following the *Observation → Insight → Low-Friction Ask* framework.
-* **Fault-Tolerant Persistence:** Integrated **SQLite Checkpointing** (via `SqliteSaver`) to maintain state across sessions, allowing for long-running human-in-the-loop (HITL) workflows.
-* **Resource Efficient:** Optimized for **8GB Apple Silicon** memory constraints through sequential batching and externalized model inference.
-* **Dynamic Strategy Engine:** Automatically pivots research logic, tone, and value propositions based on the target industry (e.g., HIPAA-focus for Healthcare vs. ROI-focus for Logistics).
+**Key Advantages:**
+* **Stateful Workflow:** Ensures data consistency across asynchronous nodes.
+* **Confidence Gating:** Prevents low-quality or hallucinated outputs (Signals <65% are flagged).
+* **Enterprise-Ready:** PDF reporting and real-time log streaming for full observability.
 
-## Tech Stack
+---
 
-* **Orchestration:** LangGraph (Python)
-* **LLM:** Gemini 1.5 Flash (via Google AI Studio)
-* **Search/Scraping:** Firecrawl (Markdown-optimized)
-* **Database:** SQLite 3.0 (Local Persistence)
-* **Interface:** Streamlit
+## 🛠️ Tech Stack
 
-## Strategic Domain Mapping
+| Layer | Technology |
+| :--- | :--- |
+| **Orchestration** | LangGraph |
+| **LLM** | Google Gemini 2.5 Flash (via LangChain) |
+| **Web Scraping** | Firecrawl API |
+| **Frontend** | Streamlit (Human-in-the-Loop) |
+| **Logic** | Python 3.10+, Pydantic |
 
-The system utilizes a **Dynamic Strategy Engine** to pivot research and outreach logic based on the target industry. This ensures the "Triple-Hook" remains relevant to specific DFW market sectors.
+---
 
-| Domain | Key Signal (Input) | Derived Pain Point | Proposed Solution (Output) |
-| :--- | :--- | :--- | :--- |
-| **Healthcare** | New Office / Hiring Surge | Administrative Burnout | **Patient Navigator Agent** |
-| **Logistics** | Fleet Expansion / New Warehouse | Routing Inefficiency | **AI Dispatcher Assistant** |
-| **Real Estate** | New Multi-family Development | Lead Response Lag | **24/7 Virtual AI Leasing** |
+## ✨ Key Features
+* **Human-in-the-Loop (HITL) Editing:** Review AI-generated research and edit outreach drafts before sending.
+* **Confidence Scoring:** Researcher assigns a confidence score; low-confidence signals are flagged for manual verification.
+* **ROI-Driven Copy:** Strategist node injects numerical ROI insights into outreach based on market benchmarks.
+* **PDF & Log Export:** Sanitized filename generation and real-time log streaming within the UI.
+* **Session State Management:** Persistent Streamlit states ensure workflow continuity across reruns.
 
-> **Note:** The "Key Signal" is discovered dynamically via the Researcher Agent; the "Derived Pain Point" is a logical inference generated by the Gemini 1.5 Flash reasoning engine.
+---
 
-### Human-in-the-Loop (HITL) Architecture
-To ensure enterprise-grade reliability, the system implements a **Suspended State** pattern:
-1. **Interrupt:** The LangGraph workflow automatically pauses after the Copywriter node.
-2. **Review:** The state is persisted to SQLite, allowing the user to review the "Triple-Hook" draft via Streamlit.
-3. **Resume/Feedback:** The user can approve, edit, or provide natural language feedback (e.g., "Make this shorter"), which triggers a recursive refinement loop before final execution.
+## 🚦 Getting Started
 
-### Observability & Traceability
-* **State Inspection:** Every node transition and metadata change is logged with a unique `thread_id` for session recovery.
-* **Trace-Ready:** The system is pre-configured for **LangSmith** integration. Simply add `LANGCHAIN_TRACING_V2=true` to your `.env` to visualize the entire Graph-of-Thought reasoning path.
+### 1. Clone Repository
+```bash
+git clone [https://github.com/your-username/dfw-market-intel.git](https://github.com/your-username/dfw-market-intel.git)
+cd dfw-market-intel
+```
 
-### Design Trade-offs
-* **Why Gemini 1.5 Flash?** Chosen for its massive 1M+ token context window (perfect for deep Firecrawl scrapes) and low latency on the Free Tier.
-* **Why SQLite?** Provides zero-config, "edge-ready" persistence that runs locally on an 8GB M2 Mac without needing a heavy Dockerized Postgres instance.
-* **Why Sequential Batching?** To prevent memory pressure on Apple Silicon while maintaining high throughput for lead research.
+### 2. Configure Environment
+Create a `.env` file in the root directory:
+```env
+GOOGLE_API_KEY=your_gemini_key
+FIRECRAWL_API_KEY=your_firecrawl_key
+```
 
-## Local Setup
+### 3. Install Dependencies & Run
+```bash
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
 
-1.  **Clone & Environment:**
-    ```bash
-    git clone [https://github.com/shirinlakhani/sales-outreach-agent.git](https://github.com/shirinlakhani/sales-outreach-agent.git)
-    cd sales-outreach-agent
-    python3 -m venv venv && source venv/bin/activate
-    pip install -r requirements.txt
-    ```
+---
 
-2.  **Configuration:** Create a `.env` file in the root directory to store your API keys safely:
-    ```env
-    GOOGLE_API_KEY=your_gemini_key_here
-    FIRECRAWL_API_KEY=your_firecrawl_key_here
-    ```
+## 📈 Why It Matters
+This project demonstrates **AI Systems Engineering** over simple prompt engineering:
 
-3.  **Run Dashboard:**
-    ```bash
-    streamlit run app.py
-    ```
-## Performance & Safety
+* **State Management:** Persisting complex data across multi-agent asynchronous workflows.
+* **Defensive Design:** Safe JSON parsing and robust error handling for non-deterministic LLM outputs.
+* **Regional Expertise:** Specifically tuned for the economic landscape of North Texas.
+* **Cost Awareness:** Efficient multi-agent orchestration reduces tokens by isolating tasks to smaller, focused prompts.
 
-* **Safety Gate:** 100% of outreach requires manual approval via the **Streamlit UI** before execution to ensure zero-hallucination communication.
-* **Rate Limiting:** Built-in **5s backoff** logic to remain strictly within **Gemini 1.5 Flash Free Tier** constraints (15 RPM).
-* **Audit Log:** All agent reasoning, lead scoring decisions, and metadata are logged locally to `outreach.db` for full transparency and debugging.
+---
+
+## 📂 Project Structure
+
+| File | Purpose |
+| :--- | :--- |
+| `agent.py` | Core LangGraph agent definition and node logic |
+| `app.py` | Frontend UI and session state management |
+| `prompts.py` | Version-controlled system instructions (v7.4) |
+| `utils.py` | Helper functions: parsing, filename sanitization |
+
+---
+
+## 👨‍💻 Connect with the Developer
+
+I am an entry-level **GenAI Engineer** focused on building stateful, multi-agent systems that solve real-world business bottlenecks. Based in the heart of the North Texas tech corridor, I specialize in bridging the gap between raw LLM capabilities and reliable enterprise workflows.
+
+* **LinkedIn:** [linkedin.com/in/shirin-lakhani786](https://www.linkedin.com/in/shirin-lakhani786/)
+* **GitHub:** [github.com/shirinlakhani](https://github.com/shirinlakhani)
+* **Location:** 📍 Colleyville / Dallas-Fort Worth, TX / Remote
+
+---
+*Built with 🎯 in North Texas. Distributed under the MIT License.*
